@@ -1,0 +1,23 @@
+{
+  "name": "garagepi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nick6464/garagepi.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nick6464/garagepi/issues"
+  },
+  "homepage": "https://github.com/Nick6464/garagepi#readme",
+  "dependencies": {
+    "onoff": "^6.0.3",
+    "rpi-gpio": "^2.1.7"
+  }
+}
