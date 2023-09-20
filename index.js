@@ -1,7 +1,7 @@
 const http = require('http');
 const Gpio = require('onoff').Gpio;
 
-const hostname = 'localhost';
+const hostname = '192.168.0.168';
 const port = 3000;
 const relayPin = 17;
 
