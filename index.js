@@ -1,64 +1,46 @@
-const Gpio = require('onoff').Gpio;
-const dotenv = require('dotenv');
-const jwt = require('jsonwebtoken'); // Add the JWT library
-const express = require('express');
+const dotenv = require("dotenv");
+const express = require("express");
+const jwtMiddleware = require("./jwtMiddleware");
+require("dotenv").config();
 
-// Load environment variables from .env file
-dotenv.config();
+const { hostname, port, relayPin, NODE_ENV } = process.env;
 
-// Get the env variables we need
-const { hostname, port, relayPin, jwtSecret } = process.env; // Provide the JWT secret
+let Gpio;
+if (NODE_ENV === "development") {
+  Gpio = require("./gpio");
+} else {
+  Gpio = require("onoff").Gpio;
+}
 
-// Initialize the relay pin as an output
-const relay = new Gpio(relayPin, 'out');
+const relay = new Gpio(relayPin, "out");
 
 const app = express();
 
-app.use(express.json()); // Enable JSON request parsing
+app.use(express.json());
 
-// Relay control routes
-app.get('/on', ensureAuthenticated, (req, res) => {
-  // Turn the relay on
+// Apply JWT verification middleware to the routes that need protection
+app.get("/on", jwtMiddleware.jwtVerificationMiddleware, (req, res) => {
   relay.writeSync(1);
-  res.send('Relay is ON');
+  res.send("Relay is ON");
 });
 
-app.get('/off', ensureAuthenticated, (req, res) => {
-  // Turn the relay off
+app.get("/off", jwtMiddleware.jwtVerificationMiddleware, (req, res) => {
   relay.writeSync(0);
-  res.send('Relay is OFF');
+  res.send("Relay is OFF");
 });
 
-// Ensure user is authenticated by verifying the JWT token
-function ensureAuthenticated(req, res, next) {
-  const token = req.headers.authorization;
-
-  if (!token) {
-    return res.status(401).send('Unauthorized. Token missing.');
-  }
-
-  try {
-    // Verify the JWT token using the secret
-    const decoded = jwt.verify(token, jwtSecret);
-
-    // Access the user's claims in the 'decoded' object
-    if (decoded && decoded.permissions.includes('control_relay')) {
-      return next();
-    } else {
-      return res.status(403).send('Forbidden. Insufficient permissions.');
-    }
-  } catch (error) {
-    console.error('Token verification error:', error);
-    return res.status(401).send('Unauthorized. Invalid token.');
-  }
-}
+app.get("/toggle", jwtMiddleware.jwtVerificationMiddleware, (req, res) => {
+  const currentValue = relay.readSync();
+  relay.writeSync(currentValue ^ 1);
+  res.send(`Relay is ${currentValue ? "OFF" : "ON"}`);
+});
 
 app.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
 });
 
 // Cleanup and unexport the relay GPIO pin on program exit
-process.on('SIGINT', () => {
+process.on("SIGINT", () => {
   relay.unexport();
   process.exit();
 });
