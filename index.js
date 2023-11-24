@@ -19,20 +19,29 @@ const app = express();
 app.use(express.json());
 
 // Apply JWT verification middleware to the routes that need protection
-app.get("/on", jwtMiddleware.jwtVerificationMiddleware, (req, res) => {
+// app.get("/on", jwtMiddleware.jwtVerificationMiddleware, (req, res) => {
+//   relay.writeSync(1);
+//   res.send("Relay is ON");
+// });
+
+// app.get("/off", jwtMiddleware.jwtVerificationMiddleware, (req, res) => {
+//   relay.writeSync(0);
+//   res.send("Relay is OFF");
+// });
+
+// app.get("/toggle", jwtMiddleware.jwtVerificationMiddleware, (req, res) => {
+//   const currentValue = relay.readSync();
+//   relay.writeSync(currentValue ^ 1);
+//   res.send(`Relay is ${currentValue ? "OFF" : "ON"}`);
+// });
+
+// Button Press for 0.2 seconds
+app.post("/press", jwtMiddleware.jwtVerificationMiddleware, (req, res) => {
   relay.writeSync(1);
+  setTimeout(() => {
+    relay.writeSync(0);
+  }, 200);
   res.send("Relay is ON");
-});
-
-app.get("/off", jwtMiddleware.jwtVerificationMiddleware, (req, res) => {
-  relay.writeSync(0);
-  res.send("Relay is OFF");
-});
-
-app.get("/toggle", jwtMiddleware.jwtVerificationMiddleware, (req, res) => {
-  const currentValue = relay.readSync();
-  relay.writeSync(currentValue ^ 1);
-  res.send(`Relay is ${currentValue ? "OFF" : "ON"}`);
 });
 
 app.listen(port, hostname, () => {
