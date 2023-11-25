@@ -36,7 +36,7 @@ app.use(express.json());
 // });
 
 // Button Press for 0.2 seconds
-app.post("/press", jwtMiddleware.jwtVerificationMiddleware, (req, res) => {
+app.get("/press", jwtMiddleware.jwtVerificationMiddleware, (req, res) => {
   relay.writeSync(1);
   setTimeout(() => {
     relay.writeSync(0);
