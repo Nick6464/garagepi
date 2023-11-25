@@ -3,7 +3,7 @@ const express = require("express");
 const jwtMiddleware = require("./jwtMiddleware");
 require("dotenv").config();
 
-const { port, relayPin, NODE_ENV } = process.env;
+const { hostname, port, relayPin, NODE_ENV } = process.env;
 
 let Gpio;
 if (NODE_ENV === "development") {
