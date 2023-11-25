@@ -3,7 +3,7 @@ const express = require("express");
 const jwtMiddleware = require("./jwtMiddleware");
 require("dotenv").config();
 
-const { hostname, port, relayPin, NODE_ENV } = process.env;
+const { port, relayPin, NODE_ENV } = process.env;
 
 let Gpio;
 if (NODE_ENV === "development") {
@@ -45,7 +45,7 @@ app.post("/press", jwtMiddleware.jwtVerificationMiddleware, (req, res) => {
 });
 
 app.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
+  console.log(`Server running at https://${hostname}:${port}/`);
 });
 
 // Cleanup and unexport the relay GPIO pin on program exit
