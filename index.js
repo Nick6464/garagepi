@@ -40,7 +40,7 @@ app.get("/press", jwtMiddleware.jwtVerificationMiddleware, (req, res) => {
   relay.writeSync(1);
   setTimeout(() => {
     relay.writeSync(0);
-  }, 200);
+  }, 1000);
   res.send("Relay is ON");
 });
 
