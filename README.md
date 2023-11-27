@@ -40,7 +40,10 @@ I cannot explain the euphoria that I had seeing my garage door open. I live next
 ## Conclusion
 I no longer need to carry any keys or keychain. Problem solved.
 Here's a video of it in action.
-[Link to Video](https://github.com/Nick6464/garagepi/blob/main/media/blockplate.mp4)
+[![Watch the video](https://img.youtube.com/vi/FSO7dGdYm10/hqdefault.jpg)](https://www.youtube.com/embed/FSO7dGdYm10)
+
+[<img src="https://img.youtube.com/vi/FSO7dGdYm10/hqdefault.jpg" width="300" height="600" />](https://www.youtube.com/embed/FSO7dGdYm10)
+
 
 
 ## Epilogue/Improvements
