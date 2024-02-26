@@ -1,9 +1,8 @@
 const dotenv = require("dotenv");
-const express = require("express");
-const jwtMiddleware = require("./jwtMiddleware");
+const WebSocket = require("ws");
 require("dotenv").config();
 
-const { hostname, port, relayPin, NODE_ENV } = process.env;
+const { relayPin, NODE_ENV, childPiId } = process.env;
 
 let Gpio;
 if (NODE_ENV === "development") {
@@ -14,39 +13,35 @@ if (NODE_ENV === "development") {
 
 const relay = new Gpio(relayPin, "out");
 
-const app = express();
+function connect() {
+  const ws = new WebSocket(NODE_ENV == 'development' ? "ws://localhost:8080" : "ws://219.89.196.192:19049");
 
-app.use(express.json());
+  ws.on("open", () => {
+    console.log("Connected to server");
+    ws.send(childPiId);
+  });
 
-// Apply JWT verification middleware to the routes that need protection
-// app.get("/on", jwtMiddleware.jwtVerificationMiddleware, (req, res) => {
-//   relay.writeSync(1);
-//   res.send("Relay is ON");
-// });
+  ws.on("message", (message) => {
+    if (message === "press") {
+      relay.writeSync(1);
+      setTimeout(() => {
+        relay.writeSync(0);
+      }, 250);
+      console.log("Relay is ON");
+    }
+  });
 
-// app.get("/off", jwtMiddleware.jwtVerificationMiddleware, (req, res) => {
-//   relay.writeSync(0);
-//   res.send("Relay is OFF");
-// });
+  ws.on("close", () => {
+    console.log("Connection closed, trying to reconnect");
+    setTimeout(connect, 5000); // try to reconnect after 5 seconds
+  });
 
-// app.get("/toggle", jwtMiddleware.jwtVerificationMiddleware, (req, res) => {
-//   const currentValue = relay.readSync();
-//   relay.writeSync(currentValue ^ 1);
-//   res.send(`Relay is ${currentValue ? "OFF" : "ON"}`);
-// });
+  ws.on("error", (err) => {
+    console.error("WebSocket error observed:", err);
+  });
+}
 
-// Button Press for 0.2 seconds
-app.get("/press", jwtMiddleware.jwtVerificationMiddleware, (req, res) => {
-  relay.writeSync(1);
-  setTimeout(() => {
-    relay.writeSync(0);
-  }, 250);
-  res.send("Relay is ON");
-});
-
-app.listen(port, hostname, () => {
-  console.log(`Server running at https://${hostname}:${port}/`);
-});
+connect();
 
 // Cleanup and unexport the relay GPIO pin on program exit
 process.on("SIGINT", () => {
